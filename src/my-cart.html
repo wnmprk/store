@@ -1,0 +1,231 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="cart-item.html">
+
+<dom-module id="my-cart">
+  <template>
+    <style>
+      :host {
+        overflow: hidden;
+        position: fixed;
+        top: 0;
+        width: 100%;
+      }
+
+      p {
+        margin: 0;
+      }
+
+      .toggle-cart {
+        display: flex;
+        justify-content: space-between;
+        background-color: #E39774;
+        color: white;
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        text-align: left;
+        border: none;
+        outline: none;
+        transition: 1s;
+        font-size: 18px;
+        letter-spacing: 2px;
+        border-bottom: 1px solid white;
+      }
+
+      .toggle-cart.active, .toggle-cart:hover {
+        background-color: #DC7F54;
+      }
+
+      #cart {
+        display: flex;
+        flex-wrap: wrap;
+        background-color: #E39774;
+        color: white;
+        max-height: 0;
+        overflow: scroll;
+        transition: max-height 0.2s ease-out;
+        font-size: 20px;
+      }
+
+      .shipping, .total, .items {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        padding: 18px;
+      }
+
+      .total,
+      .items {
+        border-bottom: 1px white solid;
+      }
+
+      .items {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .featured {
+        text-align: center;
+        padding: 18px;
+      }
+
+      .featured p {
+        font-size: 12px;
+      }
+
+      .image {
+        display: block;
+        height: 150px;
+        width: 250px;
+        background: #5C9EAD;
+        margin: 0 auto;
+      }
+
+      h4 {
+        font-size: 18px;
+        margin: 12px 0;
+      }
+
+      .pre-order {
+        padding: 12px 24px;
+        border: 1px solid white;
+        background-color: #E39774;
+        outline: none;
+        border-radius: 24px;
+        color: white;
+        font-size: 16px;
+        letter-spacing: 2px;
+        cursor: pointer;
+        margin-top: 12px;
+      }
+
+      .pre-order:hover {
+        background-color: white;
+        color: #E39774;
+      }
+
+      @media (min-width: 850px) {
+        :host {
+          right: 0;
+          width: 320px;
+          border-left: 1px solid white;
+        }
+
+        .toggle-cart, .toggle-cart:hover {
+          background-color: #E39774;
+        }
+
+        #cart {
+          min-height: 92vh;
+        }
+      }
+    </style>
+    <button class="toggle-cart" on-click="_toggleCart">
+      <span class="total-items">ITEMS IN CART: {{totalItems}}</span>
+      <span class="total-price">${{totalPrice}}</span>
+    </button>
+    <div id="cart">
+      <div class="shipping">
+        <p>SHIPPING</p>
+        <p>FREE</p>
+      </div>
+      <div class="total">
+        <p>TOTAL</p>
+        <p>${{totalPrice}}</p>
+      </div>
+      <div class="items">
+        <!-- dom-if only displays the content of the template if noItemsCopy is set to true -->
+        <template is="dom-if" if="[[noItemsCopy]]">
+          There are currently no items in your cart. Check out our featured product!
+        </template>
+        <!-- dom-repeat loops through the cart array and each product in the cart is nicknamed as `product` -->
+        <template is="dom-repeat" items="{{cart}}" as="product">
+          <cart-item
+            product="{{product}}"
+            cart="{{cart}}"
+            total-items="{{totalItems}}"
+            total-price="{{totalPrice}}">
+          </cart-item>
+        </template>
+      </div>
+      <div class="featured">
+        <span class="image"></span>
+        <h4>[[featuredProduct.name]]</h4>
+        <p>[[featuredProduct.description]]</p>
+        <button type="button" class="pre-order" on-click="_preorderFeaturedItem">
+          PRE-ORDER FOR $[[featuredProduct.price]]
+        </button>
+      </div>
+    </div>
+  </template>
+  <script>
+    class MyCart extends Polymer.Element {
+      static get is() { return 'my-cart'; }
+
+      static get properties() {
+        return {
+          cart: {
+            type: Array,
+            /* Notify set to true supports upward data flow to the parent components.
+            So when cart is updated, the host element is notified and re-renders the
+            dom if necessary.*/
+            notify: true
+          },
+
+          featuredProduct: {
+            type: Object,
+            notify: true
+          },
+
+          noItemsCopy: {
+            type: Boolean,
+            /* Computed properties observer changes in the object properties that are
+            explicitely passed through the function as an argument and are only called
+            when the properties are defined and not a `false-y` value. */
+            computed: '_computeNoItems(cart.length)'
+          },
+
+          totalItems: {
+            type: Number,
+            notify: true
+          },
+
+          totalPrice: {
+            type: Number,
+            notify: true,
+          }
+        };
+      }
+
+      _computeNoItems(cartLength) {
+        return cartLength === 0;
+      }
+
+      _preorderFeaturedItem() {
+        let featuredProductIndex = this.cart.findIndex(product => {
+          return product.name === 'Featured Item';
+        });
+
+        if (featuredProductIndex < 0) {
+          this.featuredProduct.quantity = 1;
+          this.push('cart', this.featuredProduct);
+        } else {
+          this.cart[featuredProductIndex].quantity++;
+        }
+
+        this.totalItems++;
+        this.totalPrice += this.featuredProduct.price;
+      }
+
+      /* Toggles cart/menu */
+      _toggleCart() {
+        let cart = this.$.cart;
+
+        this.classList.toggle("active");
+        cart.style.maxHeight = cart.style.maxHeight ? null : "92vh";
+      }
+    }
+
+    customElements.define(MyCart.is, MyCart);
+  </script>
+</dom-module>

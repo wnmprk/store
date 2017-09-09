@@ -1,0 +1,115 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="product-profile">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        align-items: center;
+        margin-bottom: 24px;
+        padding: 12px 6px;
+        border-bottom: 1px solid #326273;
+      }
+
+      .image {
+        display: block;
+        height: 100px;
+        width: 100px;
+        background: #5C9EAD;
+      }
+
+      button {
+        padding: 12px 24px;
+        border: 1px solid #326273;
+        background-color: #326273;
+        outline: none;
+        border-radius: 24px;
+        color: white;
+        font-size: 16px;
+        letter-spacing: 2px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: white;
+        color: #326273;
+        border: 1px solid #326273;
+      }
+
+      .info h3 {
+        text-align: center;
+      }
+
+      .info h3,
+      .more-info h4 {
+        margin-bottom: 0;
+      }
+
+      .more-info {
+        padding-left: 18px;
+      }
+
+      .more-info h4 {
+        margin: 0
+      }
+
+      .more-info p {
+        font-size: 12px;
+      }
+    </style>
+    <div class="info">
+      <span class="image"></span>
+      <h3>$[[product.price]]</h3>
+    </div>
+    <div class="more-info">
+      <h4>[[product.name]]</h4>
+      <p>[[product.description]]</p>
+      <button type="button" on-click="_addToCart">ADD TO CART</button>
+    </div>
+  </template>
+  <script>
+    class ProductProfile extends Polymer.Element {
+      static get is() { return 'product-profile'; }
+
+      static get properties() {
+        return {
+          cart: {
+            type: Array,
+            notify: true,
+          },
+
+          product: Object,
+
+          totalItems: {
+            type: Number,
+            notify: true
+          },
+
+          totalPrice: {
+            type: Number,
+            notify: true
+          }
+        };
+      }
+      /* Adds new item to cart, or increments quantity of existing item in cart. */
+      _addToCart() {
+        let productIndex = this.cart.findIndex(product => {
+          return product.id === this.product.id
+        });
+
+        if (productIndex < 0) {
+          this.product.quantity = 1;
+          this.push('cart', this.product);
+        } else {
+          this.cart[productIndex].quantity++;
+        }
+        /* totalItems and totalPrice is also calculated here so the properties
+        update upwards to the parent element of <product> */
+        this.totalItems++;
+        this.totalPrice += this.product.price;
+      }
+    }
+
+    customElements.define(ProductProfile.is, ProductProfile);
+  </script>
+</dom-module>

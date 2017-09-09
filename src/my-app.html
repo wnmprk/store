@@ -1,0 +1,107 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="product-profile.html">
+<link rel="import" href="my-cart.html">
+
+<!-- This is the main app element, does not include any logic, sets initial values and fetches and sets data of store items and cart via iron-ajax. -->
+<dom-module id="my-app">
+  <template>
+    <style>
+      .products {
+        margin-top: 60px;
+        padding: 12px;
+        max-width: 100%;
+      }
+
+      header {
+        display: none;
+      }
+
+      @media (min-width: 850px) {
+        header {
+          display: block;
+          height: 21px;
+          font-weight: bold;
+          background-color: #E39774;
+          padding: 18px;
+          border-bottom: 1px solid #5C9EAD;
+          color: white;
+        }
+
+        .products {
+          margin-top: 24px;
+          max-width: calc(100% - 345px);
+        }
+      }
+    </style>
+
+    <!-- iron-ajax is a Polymer iron element that fetches data from a json file -->
+    <iron-ajax
+      auto
+      url="/src/data/db.json"
+      handle-as="json"
+      last-response="{{store}}">
+    </iron-ajax>
+
+    <header>PRODUCTS</header>
+
+    <!-- Custom cart component. {{}} indicates upward and downward data flow,
+    when sibling elements want to modify a data property, like store.cart_order,
+    and when the cart is updated within <cart> and <product>
+    elements, the most updated version of the cart is shared through the
+    host element, <bedroom-app> -->
+    <my-cart
+      cart="{{store.cart_order}}"
+      featured-product="{{store.featured_product}}"
+      total-items="{{totalItems}}"
+      total-price="{{totalPrice}}">
+    </my-cart>
+
+    <div class="products">
+      <!-- This template loops through the array of products and passes each
+      product's properties to the custom <product> component -->
+      <template is="dom-repeat" items="{{store.products}}" as="product">
+        <!-- One way binding, [[]], indicates downward data flow only. Product is
+        being passed to <product> but the product itself is not altered,
+        only the cart, so two way binding is not required in this case. -->
+        <product-profile
+          product="[[product]]"
+          cart="{{store.cart_order}}"
+          total-items="{{totalItems}}"
+          total-price="{{totalPrice}}">
+        </product-profile>
+      </template>
+    </div>
+
+  </template>
+  <script>
+    /* How to create a custom element <my-app> */
+    class MyApp extends Polymer.Element {
+      static get is() { return 'my-app'; }
+
+      static get properties() {
+        return {
+          /* These are the properties that are being accessed and updated
+          in the parent and child elements */
+          store: Object,
+
+          // Set initial item count in cart to zero
+          totalItems: {
+            type: Number,
+            notify: true,
+            value: 0
+          },
+
+          // Set initial cart total to zero
+          totalPrice: {
+            type: Number,
+            notify: true,
+            value: 0
+          }
+        };
+      }
+    }
+
+    customElements.define(MyApp.is, MyApp);
+  </script>
+</dom-module>

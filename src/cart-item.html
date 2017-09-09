@@ -1,0 +1,136 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="cart-item">
+  <template>
+    <style>
+      :host {
+        width: 100%;
+      }
+
+      .cart-item {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .image {
+        display: block;
+        height: 75px;
+        width: 75px;
+        background: #5C9EAD;
+      }
+
+      p, span {
+        margin: 6px;
+        font-size: 10px;
+      }
+
+      .buttons button {
+        outline: none;
+        border: 1px solid white;
+        background-color: #E39774;
+        color: white;
+        cursor: pointer;
+        font-size: 12px;
+        border-radius: 50%;
+        height: 24px;
+        width: 24px;
+        margin: 6px;
+      }
+
+      .buttons button:hover {
+        background-color: white;
+        color: #E39774;
+      }
+
+      .buttons span {
+        margin: 0;
+      }
+
+      @media (min-width: 850px) {
+        .info {
+          max-width: 190px;
+        }
+      }
+    </style>
+    <div class="cart-item">
+      <span class="image"></span>
+      <div class="info">
+        <p class="name">[[product.name]]</p>
+        <div class="buttons">
+          <button class="add" type="button" on-click="_decrement">-</button>
+          <span id="quantity">[[totalProductQuantity]]</span>
+          <button class="delete" type="button" on-click="_increment">+</button>
+        </div>
+        <p class="total">$[[totalProductPrice]]</p>
+      </div>
+    </div>
+  </template>
+  <script>
+    class CartItem extends Polymer.Element {
+      static get is() { return 'cart-item'; }
+
+      static get properties() {
+        return {
+          cart: {
+            type: Array,
+            notify: true,
+          },
+
+          product: {
+            type: Object,
+            notify: true
+          },
+
+          totalProductPrice: {
+            type: Number,
+            computed: '_computeTotalProductPrice(product.quantity, product.price, totalItems)'
+          },
+
+          totalProductQuantity: {
+            type: Number,
+            computed: '_computeTotalProductQuantity(product.quantity, totalItems)'
+          },
+
+          totalItems: {
+            type: Number,
+            notify: true
+          },
+
+          totalPrice: {
+            type: Number,
+            notify: true
+          }
+        };
+      }
+
+      _computeTotalProductPrice(quantity, price) {
+        return quantity * price;
+      }
+
+      _computeTotalProductQuantity(quantity) {
+        return quantity;
+      }
+
+      _decrement() {
+        if (this.product.quantity <= 1) {
+          let updatedCart = this.cart.filter(product => {
+            return product.name !== this.product.name;
+          });
+
+          this.set('cart', updatedCart);
+        }
+        this.product.quantity--;
+        this.totalItems--;
+        this.totalPrice -= this.product.price;
+      }
+
+      _increment() {
+        this.product.quantity++;
+        this.totalItems++;
+        this.totalPrice += this.product.price;
+      }
+    }
+
+    customElements.define(CartItem.is, CartItem);
+  </script>
+</dom-module>

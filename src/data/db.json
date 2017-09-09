@@ -1,0 +1,28 @@
+{
+  "featured_product": {
+    "name": "Featured Item",
+    "description": "Bear claw gummi bears sugar plum croissant cotton candy croissant halvah icing soufflé.",
+    "price": 20
+  },
+  "products": [
+    {
+      "id": 1,
+      "name": "Macacake",
+      "description": "Macaroon cake gummi bears lemon drops wafer powder candy canes lemon drops dessert.",
+      "price": 50
+    },
+    {
+      "id": 2,
+      "name": "Picandies",
+      "description": "Pie candy candy canes danish jelly beans halvah sesame snaps tiramisu gummies.",
+      "price": 15
+    },
+    {
+      "id": 3,
+      "name": "Chocopop",
+      "description": "Chocolate lollipop halvah pie toffee candy canes soufflé.",
+      "price": 10
+    }
+  ],
+  "cart_order": []
+}
